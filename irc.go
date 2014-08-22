@@ -33,9 +33,28 @@ import (
 
 const (
 	VERSION = "go-ircevent v2.1"
+
+	RPL_WELCOME    = "001"
+	RPL_YOURHOST   = "002"
+	RPL_CREATED    = "003"
+	RPL_MYINFO     = "004"
+	RPL_ISUPPORT   = "005"
+	RPL_LIST       = "322"
+	RPL_LISTEND    = "323"
+	RPL_NAMREPLY   = "353"
+	RPL_ENDOFNAMES = "366"
+	RPL_MOTD       = "372"
+	RPL_MOTDSTART  = "375"
+	RPL_ENDOFMOTD  = "376"
+
+	ERR_TOOMANYCHANNELS = "405"
+	ERR_NICKNAMEINUSE   = "433"
+	ERR_BANNICKCHANGE   = "437"
+	ERR_NOTREGISTERED   = "451"
 )
 
 var ErrDisconnected = errors.New("Disconnect Called")
+var USER_MSG = "USER %s 8 * :%s\r\n"
 
 // Read data from a connection. To be used as a goroutine.
 func (irc *Connection) readLoop() {
@@ -368,7 +387,7 @@ func (irc *Connection) Connect(server string) error {
 		irc.pwrite <- fmt.Sprintf("PASS %s\r\n", irc.Password)
 	}
 	irc.pwrite <- fmt.Sprintf("NICK %s\r\n", irc.nick)
-	irc.pwrite <- fmt.Sprintf("USER %s 0.0.0.0 0.0.0.0 :%s\r\n", irc.user, irc.user)
+	irc.pwrite <- fmt.Sprintf(USER_MSG, irc.user, irc.user)
 	return nil
 }
 
