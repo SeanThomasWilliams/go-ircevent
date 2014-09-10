@@ -104,6 +104,12 @@ func (irc *Connection) RunCallbacks(event *Event) {
 			msg = msg[7:]
 		}
 
+		// Invalid event!
+		irc.Log.Printf("Invalid event in RunCallbacks: %#v", event)
+		if event.Arguments == nil || len(event.Arguments) == 0 {
+			return
+		}
+
 		event.Arguments[len(event.Arguments)-1] = msg
 	}
 
