@@ -51,6 +51,10 @@ const (
 	ERR_NICKNAMEINUSE   = "433"
 	ERR_BANNICKCHANGE   = "437"
 	ERR_NOTREGISTERED   = "451"
+	ERR_MUSTBEINVITED   = "473"
+	ERR_BANNED          = "474"
+	ERR_BADKEY          = "475"
+	ERR_MUSTIDENT       = "477"
 )
 
 var ErrDisconnected = errors.New("Disconnect Called")
