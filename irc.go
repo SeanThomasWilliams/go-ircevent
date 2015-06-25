@@ -195,6 +195,7 @@ func (irc *Connection) pingLoop() {
 // Main loop to control the connection.
 func (irc *Connection) Loop() {
 	errChan := irc.ErrorChan()
+	currentSleepTime := 1 * time.Second
 	for !irc.stopped {
 		err := <-errChan
 		if irc.stopped {
@@ -203,16 +204,28 @@ func (irc *Connection) Loop() {
 		irc.Log.Printf("Error, disconnected: %s\n", err)
 		//Only write reconnecting error message once per disconnect
 		loggedReconnectMessage := false
+		//Step off how often you try and reconnect
+		reconnectSleepTime := 1 * time.Second
 		for !irc.stopped {
 			if err = irc.Reconnect(); err != nil {
 				if loggedReconnectMessage == false {
 					irc.Log.Printf("Error while reconnecting: %s\n", err)
 					loggedReconnectMessage = true
 				}
-				time.Sleep(1 * time.Second)
+				time.Sleep(reconnectSleepTime)
+				reconnectSleepTime *= 2
+				if reconnectSleepTime > time.Minute {
+					reconnectSleepTime = time.Minute
+				}
 			} else {
 				break
 			}
+		}
+		//Don't get in way of an immediate reconnect on error, but add a delay before checking for more errors
+		time.Sleep(currentSleepTime)
+		currentSleepTime *= 2
+		if currentSleepTime > time.Minute {
+			currentSleepTime = time.Minute
 		}
 	}
 }
