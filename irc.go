@@ -201,9 +201,14 @@ func (irc *Connection) Loop() {
 			break
 		}
 		irc.Log.Printf("Error, disconnected: %s\n", err)
+		//Only write reconnecting error message once per disconnect
+		loggedReconnectMessage := false
 		for !irc.stopped {
 			if err = irc.Reconnect(); err != nil {
-				irc.Log.Printf("Error while reconnecting: %s\n", err)
+				if loggedReconnectMessage == false {
+					irc.Log.Printf("Error while reconnecting: %s\n", err)
+					loggedReconnectMessage = true
+				}
 				time.Sleep(1 * time.Second)
 			} else {
 				break
