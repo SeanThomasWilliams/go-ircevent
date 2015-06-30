@@ -101,7 +101,7 @@ func (irc *Connection) readLoop() {
 					msg = msg[i+1 : len(msg)]
 
 				} else {
-					irc.Log.Printf("Misformed msg from server: %#s\n", msg)
+					irc.Log.Printf("Misformed msg from server: %s\n", msg)
 				}
 
 				if i, j := strings.Index(event.Source, "!"), strings.Index(event.Source, "@"); i > -1 && j > -1 {
@@ -124,7 +124,6 @@ func (irc *Connection) readLoop() {
 			irc.RunCallbacks(event)
 		}
 	}
-	return
 }
 
 // Loop to write to a connection. To be used as a goroutine.
@@ -160,7 +159,6 @@ func (irc *Connection) writeLoop() {
 			}
 		}
 	}
-	return
 }
 
 // Pings the server if we have not received any messages for 5 minutes
@@ -330,6 +328,13 @@ func (irc *Connection) ErrorChan() chan error {
 // A disconnect sends all buffered messages (if possible),
 // stops all goroutines and then closes the socket.
 func (irc *Connection) Disconnect() {
+	//Do nothing if Disconnect has already been called,
+	select {
+	case <-irc.end:
+		return
+	default:
+	}
+
 	for event := range irc.events {
 		irc.ClearCallback(event)
 	}
